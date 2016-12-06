@@ -1,0 +1,79 @@
+
+
+<!DOCTYPE html>
+<html >
+
+<head>
+  <meta charset="UTF-8">
+  <title>convert CSS to Stylus</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  background: #eee;
+  font: 100%/1.5 sans-serif;
+  color: #222831;
+  padding: 4px;
+}
+h1 {
+  color: #393e46;
+}
+header {
+  text-align: center;
+}
+.flex {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+.flex>div {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1 1 50%;
+      -ms-flex: 1 1 50%;
+          flex: 1 1 50%;
+  margin: 4px;
+  text-align: center;
+}
+textarea {
+  outline: 0;
+  width: 100%;
+  height: 50vh;
+  border: 2px solid #00adb5;
+  padding: 1em;
+}
+</style>
+
+
+</head>
+
+
+<header>
+  <h1>CSS To Stylus Converter</h1>
+</header>
+<div class="flex">
+  <div>
+    <h2>CSS</h2>
+    <textarea class="CSS"></textarea>
+  </div>
+  <div>
+    <h2>Stylus</h2>
+    <textarea class="Stylus"></textarea>
+  </div>
+</div>
+
+<script>
+!function(){var t=[],e={counter:0,isFontFace:function(t){return t.match("@font-face")},tmpFix:function(t){var e=t+this.counter;return this.counter++,e},tmpUnFix:function(t){return t.replace(/\d+$/,"")}},n={Converter:function(t){return this.css=t||"",this.output="",this}};n.Converter.prototype={defaults:{indent:"2",cssSyntax:!1,openingBracket:"",closingBracket:"",semicolon:"",eol:"",unPrefix:!1,keepColons:!1},processCss:function(t){return this.css?(this.options=this._extend({},this.defaults,t),this.options.cssSyntax===!0?(this.options.openingBracket="{",this.options.closingBracket="}",this.options.semicolon=":",this.options.eol=";"):this.options.cssSyntax===!1&&(this.options.semicolon=this.options.keepColons?":":""),this.indentation="tab"===this.options.indent?"	":this._repeat(" ",this.options.indent),this._parse(),this):this.css},_parse:function(){var e={children:{}},n=this;this.css.replace(/\/\*[\s\S]*?\*\//gm,"").replace(/@media[^@]+/gi,function(e){var n=e.replace(/@media[^{]+\{/gi,function(e){return t.push(e.slice(0,-1).trim()),""});return n=n.replace(/[^\n]+\{/gm,function(e){var n=("00"+t.length).slice(-3);return e="media"+n+" "+e}),n=n.replace(/\}[^{]*\}[^@]*/gi,function(t){return t=t.substring(1),t=t.replace(/media\d+\s/gm,"")})}).replace(/([^{]+)\{([^}]+)\}/g,function(t,i,r){var s,o,c,u,a=e;if(n.options.unPrefix&&(r=n._unPrefix(r)),i=n._trim(i),/,/.test(i))a=n._addRule(a,i);else for(i=i.replace(/\s*([>\+~])\s*/g," &$1").replace(/(\w)([:\.])/g,"$1 &$2"),u=i.split(/[\s]+/),s=0,o=u.length;o>s;s++)c=u[s].replace(/&(.)/g,"& $1 ").replace(/& ([:\.]) /g,"&$1"),a=n._addRule(a,c);r.replace(/([^:;]+):([^;]+)/g,function(t,e,i){a.declarations.push({property:n._trim(e),value:n._trim(i)})})}),this.output=this._generateOutput(e)},_unPrefix:function(t){var e={};return t=t.replace(/-\w*-(.*)/g,function(t,n){var i;return e[n]?i="":(e[n]=1,i=n),i}).replace(/^(.*)[\s\n]+\1/gm,"$1")},_counter:0,_addRule:function(t,n){var i;return e.isFontFace(n)&&(n=e.tmpFix(n)),i=t.children[n]=t.children[n]||{children:{},declarations:[]}},_depth:0,_generateOutput:function(n){var i,r,s,o,c,u,a="",p=this.options.openingBracket?" "+this.options.openingBracket:"";for(i in n.children)if(n.children.hasOwnProperty(i)){for(u=i,e.isFontFace(i)&&(u=e.tmpUnFix(i)),a+=this._getIndent()+u+p+"\n",this._depth++,o=n.children[i].declarations,r=0,s=o.length;s>r;r++)c=o[r],a+=this._getIndent()+c.property+this.options.semicolon+" "+c.value+this.options.eol+"\n";a+=this._generateOutput(n.children[i]),this._depth--,a+=this._getIndent()+this.options.closingBracket+"\n"+(0===this._depth?"$n":"")}return a=a.replace(/^\s*$[\n\r]{1,}/gm,"").replace(/\$n/g,"\n"),a=a.replace(/media\d+/gm,function(e){var n=+e.substring(5,8)-1;return t[n]})},_getIndent:function(){return this._repeat(this.indentation,this._depth)},getStylus:function(){return this.output},_trim:function(t){return t.replace(/\t+/," ").replace(/^\s+|\s+$/g,"")},_repeat:function(t,e){return e=window.parseInt(e,10),Array(e+1).join(t)},_extend:function(){for(var t=1;t<arguments.length;t++)for(var e in arguments[t])arguments[t].hasOwnProperty(e)&&(arguments[0][e]=arguments[t][e]);return arguments[0]}},function(){document.querySelector(".CSS").oninput=function(){var t=new n.Converter(this.value);t.processCss(),document.querySelector(".Stylus").value=t.getStylus()}}()}();
+</script>
+
+</body>
+</html>
+ 
