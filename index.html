@@ -1,11 +1,11 @@
-
-
 <!DOCTYPE html>
 <html >
 
 <head>
   <meta charset="UTF-8">
   <title>convert CSS to Stylus</title>
+  <meta name="description" content="on-line utility CSS to Stylus converter" />
+  <meta name="keywords" content="css2stylus utility stylus converter" />
 
 <style>
 * {
@@ -27,17 +27,14 @@ header {
 }
 .flex {
   display: -webkit-box;
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
   -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
       -ms-flex-pack: justify;
           justify-content: space-between;
 }
-.flex>div {
+.flex > div {
   -webkit-box-flex: 1;
-  -webkit-flex: 1 1 50%;
       -ms-flex: 1 1 50%;
           flex: 1 1 50%;
   margin: 4px;
@@ -46,15 +43,13 @@ header {
 textarea {
   outline: 0;
   width: 100%;
-  height: 50vh;
+  min-height: calc(100vh - 110px);
   border: 2px solid #00adb5;
   padding: 1em;
 }
 </style>
 
-
 </head>
-
 
 <header>
   <h1>CSS To Stylus Converter</h1>
@@ -71,7 +66,276 @@ textarea {
 </div>
 
 <script>
-!function(){var t=[],e={counter:0,isFontFace:function(t){return t.match("@font-face")},tmpFix:function(t){var e=t+this.counter;return this.counter++,e},tmpUnFix:function(t){return t.replace(/\d+$/,"")}},n={Converter:function(t){return this.css=t||"",this.output="",this}};n.Converter.prototype={defaults:{indent:"2",cssSyntax:!1,openingBracket:"",closingBracket:"",semicolon:"",eol:"",unPrefix:!1,keepColons:!1},processCss:function(t){return this.css?(this.options=this._extend({},this.defaults,t),this.options.cssSyntax===!0?(this.options.openingBracket="{",this.options.closingBracket="}",this.options.semicolon=":",this.options.eol=";"):this.options.cssSyntax===!1&&(this.options.semicolon=this.options.keepColons?":":""),this.indentation="tab"===this.options.indent?"	":this._repeat(" ",this.options.indent),this._parse(),this):this.css},_parse:function(){var e={children:{}},n=this;this.css.replace(/\/\*[\s\S]*?\*\//gm,"").replace(/@media[^@]+/gi,function(e){var n=e.replace(/@media[^{]+\{/gi,function(e){return t.push(e.slice(0,-1).trim()),""});return n=n.replace(/[^\n]+\{/gm,function(e){var n=("00"+t.length).slice(-3);return e="media"+n+" "+e}),n=n.replace(/\}[^{]*\}[^@]*/gi,function(t){return t=t.substring(1),t=t.replace(/media\d+\s/gm,"")})}).replace(/([^{]+)\{([^}]+)\}/g,function(t,i,r){var s,o,c,u,a=e;if(n.options.unPrefix&&(r=n._unPrefix(r)),i=n._trim(i),/,/.test(i))a=n._addRule(a,i);else for(i=i.replace(/\s*([>\+~])\s*/g," &$1").replace(/(\w)([:\.])/g,"$1 &$2"),u=i.split(/[\s]+/),s=0,o=u.length;o>s;s++)c=u[s].replace(/&(.)/g,"& $1 ").replace(/& ([:\.]) /g,"&$1"),a=n._addRule(a,c);r.replace(/([^:;]+):([^;]+)/g,function(t,e,i){a.declarations.push({property:n._trim(e),value:n._trim(i)})})}),this.output=this._generateOutput(e)},_unPrefix:function(t){var e={};return t=t.replace(/-\w*-(.*)/g,function(t,n){var i;return e[n]?i="":(e[n]=1,i=n),i}).replace(/^(.*)[\s\n]+\1/gm,"$1")},_counter:0,_addRule:function(t,n){var i;return e.isFontFace(n)&&(n=e.tmpFix(n)),i=t.children[n]=t.children[n]||{children:{},declarations:[]}},_depth:0,_generateOutput:function(n){var i,r,s,o,c,u,a="",p=this.options.openingBracket?" "+this.options.openingBracket:"";for(i in n.children)if(n.children.hasOwnProperty(i)){for(u=i,e.isFontFace(i)&&(u=e.tmpUnFix(i)),a+=this._getIndent()+u+p+"\n",this._depth++,o=n.children[i].declarations,r=0,s=o.length;s>r;r++)c=o[r],a+=this._getIndent()+c.property+this.options.semicolon+" "+c.value+this.options.eol+"\n";a+=this._generateOutput(n.children[i]),this._depth--,a+=this._getIndent()+this.options.closingBracket+"\n"+(0===this._depth?"$n":"")}return a=a.replace(/^\s*$[\n\r]{1,}/gm,"").replace(/\$n/g,"\n"),a=a.replace(/media\d+/gm,function(e){var n=+e.substring(5,8)-1;return t[n]})},_getIndent:function(){return this._repeat(this.indentation,this._depth)},getStylus:function(){return this.output},_trim:function(t){return t.replace(/\t+/," ").replace(/^\s+|\s+$/g,"")},_repeat:function(t,e){return e=window.parseInt(e,10),Array(e+1).join(t)},_extend:function(){for(var t=1;t<arguments.length;t++)for(var e in arguments[t])arguments[t].hasOwnProperty(e)&&(arguments[0][e]=arguments[t][e]);return arguments[0]}},function(){document.querySelector(".CSS").oninput=function(){var t=new n.Converter(this.value);t.processCss(),document.querySelector(".Stylus").value=t.getStylus()}}()}();
+(function(){
+    // handle @font-face declarations
+  var fontface = {
+    counter: 0,
+    isFontFace: function (selector) {
+      return selector.match('@font-face');
+    },
+    tmpFix: function (selector) {
+      var sel = selector + this.counter;
+      this.counter++;
+      return sel;
+    },
+    tmpUnFix: function (selector) {
+      return selector.replace(/\d+$/, '');
+    }
+  };
+
+  var Css2Stylus = {
+    // constructor
+    Converter: function (css) {
+      this.css = css || '';
+      this.output = '';
+      return this;
+    }
+  };
+
+  Css2Stylus.Converter.prototype = {
+
+    // default options
+    defaults: {
+      // possible indent values: 'tab' or number (of spaces)
+      indent: '2',
+      cssSyntax: false,
+      openingBracket: '',
+      closingBracket: '',
+      semicolon: '',
+      eol: '',
+      unPrefix: false,
+      keepColons: false
+    },
+
+    processCss: function (options) {
+      if (!this.css) {
+        return this.css;
+      }
+
+      this.options = this._extend({}, this.defaults, options);
+
+      // keep css punctuation
+      if (this.options.cssSyntax === true) {
+        this.options.openingBracket = '{';
+        this.options.closingBracket = '}';
+        this.options.semicolon = ':';
+        this.options.eol = ';';
+      } else if (this.options.cssSyntax === false) {
+        this.options.semicolon = this.options.keepColons ? ':' : '';
+      }
+
+      // indentation
+      if (this.options.indent === 'tab') {
+        this.indentation = '\t';
+      } else {
+        this.indentation = this._repeat(' ', this.options.indent);
+      }
+
+      // parse css
+      this._parse();
+
+      return this;
+    },
+
+    _parse: function () {
+      var tree = {children: {}};
+      var self = this;
+
+      this.css
+        // remove comments
+        .replace(/\/\*[\s\S]*?\*\//gm, '')
+
+        // Parse @media blocks
+        // Second: Remove '@media ... {', remove extra '}', and add mapped 'Media(#)' as a pseudo-class name
+        .replace(/@media[^@]+/gi, function (group/* , selector, declaration */) {
+          // Remove '@media ... {'  declaration
+          var mediaBlockAndCss = group.replace(/@media[^{]+\{/gi, function (group) {
+            // Remove final '{' of '@media ... {' and store for later
+            mediaDeclarations.push(group.slice(0, -1).trim());
+            return '';
+          });
+          // Add the incremented media pseudo-class
+          mediaBlockAndCss = mediaBlockAndCss.replace(/[^\n]+\{/gm, function (group/* , selector, declaration */) {
+            // Clever trick from Stack Overflow: http://stackoverflow.com/a/8043061
+            var increment = ('00' + mediaDeclarations.length).slice(-3);
+            group = 'media' + increment + ' ' + group;
+            return group;
+          });
+          // Remove last '}' of '@media ... { ... }', but first of extra CSS section (Note: don't drop extra CSS)
+          mediaBlockAndCss = mediaBlockAndCss.replace(/\}[^{]*\}[^@]*/gi, function (group) {
+            // Remove first bracket of extra css following the @media block
+            group = group.substring(1);
+            // Remove any media pseudo-classes
+            group = group.replace(/media\d+\s/gm, '');
+            return group;
+          });
+          return mediaBlockAndCss;
+        })
+
+        // process each css block
+        .replace(/([^{]+)\{([^}]+)\}/g, function (group, selector, declaration) {
+          var i, l, _sel,
+            path = tree,
+            selectors;
+
+          // remove prefixes
+          if (self.options.unPrefix) {
+            declaration = self._unPrefix(declaration);
+          }
+
+          selector = self._trim(selector);
+
+          // skip grouped selector
+          if (/,/.test(selector)) {
+            path = self._addRule(path, selector);
+
+          // process
+          } else {
+
+            // join special chars to prevent from breaking them into parts
+            selector = selector.replace(/\s*([>\+~])\s*/g, ' &$1').replace(/(\w)([:\.])/g, '$1 &$2');
+
+            // split on spaces to get full selector path
+            selectors = selector.split(/[\s]+/);
+
+            for (i = 0, l = selectors.length; i < l; i++) {
+              // fix back special chars
+              _sel = selectors[i].replace(/&(.)/g, '& $1 ').replace(/& ([:\.]) /g, '&$1');
+              path = self._addRule(path, _sel);
+            }
+          }
+
+          declaration.replace(/([^:;]+):([^;]+)/g, function (_declaration, property, value) {
+            path.declarations.push({
+              property: self._trim(property),
+              value: self._trim(value)
+            });
+          });
+        });
+
+      this.output = this._generateOutput(tree);
+    },
+
+    _unPrefix: function (declaration) {
+      var propValues = {};
+
+      declaration = declaration.replace(/-\w*-(.*)/g, function (wholeMatch, propValue) {
+        var pv;
+
+        if (propValues[propValue]) {
+          pv = '';
+        } else {
+          propValues[propValue] = 1;
+          pv = propValue;
+        }
+
+        return pv;
+      })
+        .replace(/^(.*)[\s\n]+\1/gm, '$1');
+
+      return declaration;
+    },
+
+    _counter: 0,
+    _addRule: function (path, selector) {
+      var p;
+
+      if (fontface.isFontFace(selector)) {
+        selector = fontface.tmpFix(selector);
+      }
+
+      p = (path.children[selector] = path.children[selector] || {children: {}, declarations: []});
+
+      return p;
+    },
+
+    _depth: 0,
+    _generateOutput: function (tree) {
+      var output = '';
+      var openingBracket = (this.options.openingBracket ? ' ' + this.options.openingBracket : '');
+      var key, j, l, declarations, declaration, sel;
+
+      for (key in tree.children) {
+        if (tree.children.hasOwnProperty(key)) {
+          sel = key;
+          if (fontface.isFontFace(key)) {
+            sel = fontface.tmpUnFix(key);
+          }
+          output += this._getIndent() + sel + openingBracket + '\n';
+          this._depth++;
+          declarations = tree.children[key].declarations;
+
+          for (j = 0, l = declarations.length; j < l; j++) {
+            declaration = declarations[j];
+            output += this._getIndent() + declaration.property + this.options.semicolon + ' ' + declaration.value + this.options.eol + '\n';
+          }
+
+          output += this._generateOutput(tree.children[key]);
+          this._depth--;
+          output += this._getIndent() + this.options.closingBracket + '\n' + (this._depth === 0 ? '$n' : '');
+        }
+      }
+
+      // remove blank lines (http://stackoverflow.com/a/4123442)
+      output = output.replace(/^\s*$[\n\r]{1,}/gm, '').replace(/\$n/g, '\n'); // .replace(/\n$/, '');
+
+      // Parse @media blocks
+      // Third: Replace incremented 'Media(#)' pseudo-class with saved @media declaration
+      output = output.replace(/media\d+/gm, function (group) {
+        var increment = Number(group.substring(5, 8)) - 1;
+        return mediaDeclarations[increment];
+      });
+
+      return output;
+    },
+
+    // calculate correct indent
+    _getIndent: function () {
+      return this._repeat(this.indentation, this._depth);
+    },
+
+    // returns stylus output
+    getStylus: function () {
+      return this.output;
+    },
+
+    // string helpers
+    _trim: function (str) {
+      // _trim tabs and spaces
+      return str.replace(/\t+/, ' ').replace(/^\s+|\s+$/g, '');
+    },
+
+    // _repeat same string n times
+    _repeat: function (str, n) {
+      n = window.parseInt(n, 10);
+      return new Array(n + 1).join(str);
+    },
+
+    // extend objects
+    _extend: function () {
+      for (var i = 1; i < arguments.length; i++) {
+        for (var key in arguments[i]) {
+          if (arguments[i].hasOwnProperty(key)) {
+            arguments[0][key] = arguments[i][key];
+          }
+        }
+      }
+      return arguments[0];
+    }
+  };
+  
+  
+  //===== GO ====
+  
+  document.querySelector(".CSS").oninput = function() {
+    var converter = new Css2Stylus.Converter(this.value);
+    converter.processCss();
+    document.querySelector(".Stylus").value = converter.getStylus();
+  }
+  
+  
+})();
+  
 </script>
 
 </body>
